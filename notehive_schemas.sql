@@ -46,15 +46,3 @@ CREATE TABLE Notes (
     FOREIGN KEY (subject_id) REFERENCES Subject(subject_id),
     FOREIGN KEY (uploaded_by) REFERENCES Users(user_id)
 );
-
-
--- Comments table
-CREATE TABLE Comments (
-    comment_id INT AUTO_INCREMENT PRIMARY KEY,
-    note_id INT,
-    user_id INT,
-    comment_text TEXT,
-    date_posted DATE,
-    FOREIGN KEY (note_id) REFERENCES Notes(note_id),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
-);
