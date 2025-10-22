@@ -2,13 +2,13 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 user = "root"
-password ="
+password ="Nandini.14"
 host = "localhost"
 database = "notehive"
 
 engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}/{database}")
 
-query = "SELECT note_id, title, description, file_path FROM Notes;"
+query = "SELECT note_id, title, description, file_path FROM note;"
 
 df = pd.read_sql(query, engine)
 

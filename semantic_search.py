@@ -16,6 +16,6 @@ def semantic_search(query, top_k=3):
     return results
 
 if __name__ == "__main__":
-    query ="sql"
+    query ="process scheduling in operating system"
     top_notes = semantic_search(query, top_k=5)
     print(top_notes)
