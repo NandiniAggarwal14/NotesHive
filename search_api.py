@@ -6,18 +6,12 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# -----------------------------
-# Database Config
-# -----------------------------
 user = "root"
 password = "Nandini.14"
 host = "localhost"
 database = "notehive"
 engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}/{database}")
 
-# -----------------------------
-# Combined Search Endpoint
-# -----------------------------
 @app.route("/api/search", methods=["GET"])
 def search_api():
     query = request.args.get("query")
@@ -29,7 +23,6 @@ def search_api():
     search_type = request.args.get("search_type", "semantic").lower()
     min_similarity = request.args.get("min_similarity", 0.2)
 
-    # Convert types
     try:
         top_n = int(top_n)
         min_similarity = float(min_similarity)
@@ -39,7 +32,6 @@ def search_api():
         return jsonify({"error": "Invalid query parameters"}), 400
 
     try:
-        # Fetch latest notes from DB to ensure search is up-to-date
         with engine.connect() as conn:
             query_notes = text("""
                 SELECT n.note_id, n.title, n.description, n.file_path, n.subject_id, 
@@ -49,7 +41,6 @@ def search_api():
             """)
             notes_df = pd.read_sql(query_notes, conn)
 
-        # Perform the selected search type
         if search_type == "keyword":
             results = search_notes_by_keyword(query, user_id=user_id, top_n=top_n)
         elif search_type == "semantic":

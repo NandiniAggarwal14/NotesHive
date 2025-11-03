@@ -3,16 +3,12 @@ from keyword_search import search_notes_by_keyword
 
 app = Flask(__name__)
 
-# -----------------------------
-# Keyword Search Endpoint
-# -----------------------------
 @app.route("/api/search/keyword", methods=["GET"])
 def keyword_search_api():
     query = request.args.get("query")
     user_id = request.args.get("user_id")
     top_n = request.args.get("top_n", 10)
 
-    # Convert user_id and top_n to integers if provided
     if user_id is not None:
         try:
             user_id = int(user_id)
@@ -31,16 +27,9 @@ def keyword_search_api():
     return jsonify(results)
 
 
-# -----------------------------
-# Root Endpoint for Testing
-# -----------------------------
 @app.route("/", methods=["GET"])
 def root():
     return "NotesHive Keyword Search API is running!"
 
-
-# -----------------------------
-# Run the Flask App
-# -----------------------------
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

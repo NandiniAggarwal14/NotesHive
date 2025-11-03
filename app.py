@@ -5,9 +5,6 @@ import requests
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# -------------------------
-# LOGIN PAGE
-# -------------------------
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -41,9 +38,6 @@ def login():
     return render_template('login.html')
 
 
-# -------------------------
-# DASHBOARD PAGE
-# -------------------------
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'token' not in session:
@@ -78,14 +72,10 @@ def dashboard():
     return render_template('dashboard.html', results=results, error=error)
 
 
-# -------------------------
-# ADD NOTE (both teachers and students can add)
-# -------------------------
 @app.route('/addnote', methods=['GET', 'POST'])
 def addnote():
     if 'token' not in session:
         return redirect(url_for('login'))
-    # Both students and teachers can add notes now
 
     error = None
     message = None
@@ -111,7 +101,6 @@ def addnote():
                     "file_path": file_path
                 }
                 
-                # Add subject_id or subject_name
                 if subject_id:
                     payload["subject_id"] = int(subject_id)
                 if subject_name:
@@ -131,9 +120,6 @@ def addnote():
     return render_template('addnote.html', error=error, message=message)
 
 
-# -------------------------
-# DELETE NOTE (teachers only)
-# -------------------------
 @app.route('/deletenote', methods=['GET', 'POST'])
 def deletenote():
     if 'token' not in session:
@@ -167,9 +153,6 @@ def deletenote():
     return render_template('deletenote.html', error=error, message=message)
 
 
-# -------------------------
-# LOGOUT
-# -------------------------
 @app.route('/logout')
 def logout():
     session.clear()

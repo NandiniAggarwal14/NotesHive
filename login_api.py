@@ -7,10 +7,8 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
 from datetime import timedelta
 
-# --- FastAPI app ---
 app = FastAPI(title="NotesHive Login API")
 
-# --- DATABASE CONFIG ---
 user = "root"
 password = "Nandini.14"
 host = "localhost"
@@ -18,7 +16,6 @@ database = "notehive"
 
 engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}/{database}")
 
-# --- JWT CONFIG ---
 class Settings(BaseModel):
     authjwt_secret_key: str = "notehive_secret_key"
     authjwt_access_token_expires: int = 7200  # 2 hours in seconds
@@ -27,17 +24,14 @@ class Settings(BaseModel):
 def get_config():
     return Settings()
 
-# --- Pydantic model for login request ---
 class LoginModel(BaseModel):
     email: str
     password: str
 
-# --- Exception handler for JWT errors ---
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request, exc):
     return JSONResponse(status_code=exc.status_code, content={"error": exc.message})
 
-# --- Login route ---
 @app.post("/api/login")
 def login(data: LoginModel, Authorize: AuthJWT = Depends()):
     email = data.email
@@ -46,7 +40,6 @@ def login(data: LoginModel, Authorize: AuthJWT = Depends()):
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password are required")
 
-    # Fetch user from DB
     with engine.begin() as conn:
         query = text("SELECT user_id, name, role, password FROM User WHERE email = :email")
         user_result = conn.execute(query, {"email": email}).fetchone()
@@ -56,7 +49,6 @@ def login(data: LoginModel, Authorize: AuthJWT = Depends()):
 
     user_id, name, role, _ = user_result
 
-    # Generate JWT token
     access_token = Authorize.create_access_token(subject=str(user_id), user_claims={"role": role})
 
     return {
@@ -69,7 +61,6 @@ def login(data: LoginModel, Authorize: AuthJWT = Depends()):
         }
     }
 
-# --- Test route ---
 @app.get("/api/test")
 def test_route(Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()

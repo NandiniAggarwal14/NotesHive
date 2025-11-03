@@ -7,13 +7,11 @@ import requests
 
 app = Flask(__name__)
 
-# --- CONFIG ---
 app.config["JWT_SECRET_KEY"] = "notehive_secret_key"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
 
 jwt = JWTManager(app)
 
-# --- DATABASE CONFIG ---
 user = "root"
 password = "Nandini.14"
 host = "localhost"
@@ -21,17 +19,9 @@ database = "notehive"
 
 engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}/{database}")
 
-# --- ROUTES ---
-
 @app.route("/api/addNote", methods=["POST"])
 @jwt_required()
 def add_note():
-    """
-    Adds a new note to the database.
-    ✅ Automatically creates the subject if it does not exist.
-    ✅ Works for both students and teachers.
-    ✅ Triggers search index refresh.
-    """
     try:
         data = request.get_json()
         current_user = get_jwt_identity()
@@ -50,7 +40,6 @@ def add_note():
             return jsonify({"error": "Missing required fields (title, description, file_path)"}), 400
 
         with engine.begin() as conn:
-            # --- Determine subject_id ---
             if subject_id:
                 subject_id = int(subject_id)
             elif subject_name:
@@ -65,7 +54,6 @@ def add_note():
             else:
                 return jsonify({"error": "Either subject_id or subject_name is required"}), 400
 
-            # --- Insert the note ---
             insert_note = text("""
                 INSERT INTO Note (title, description, file_path, subject_id, uploaded_by, upload_date)
                 VALUES (:title, :description, :file_path, :subject_id, :uploaded_by, :upload_date)
@@ -79,11 +67,10 @@ def add_note():
                 "upload_date": upload_date
             })
 
-        # 🔁 Notify search API to refresh its data
         try:
             requests.post("http://127.0.0.1:5000/api/refresh_index")
         except Exception as e:
-            print("⚠️ Warning: Could not refresh search index:", e)
+            print(" Warning: Could not refresh search index:", e)
 
         return jsonify({"message": "Note added successfully"}), 201
 
@@ -115,11 +102,10 @@ def delete_note(note_id):
             if result.rowcount == 0:
                 return jsonify({"error": "Note not found"}), 404
 
-        # 🔁 Refresh search index after deletion
         try:
             requests.post("http://127.0.0.1:5000/api/refresh_index")
         except Exception as e:
-            print("⚠️ Warning: Could not refresh search index after deletion:", e)
+            print(" Warning: Could not refresh search index after deletion:", e)
 
         return jsonify({"message": "Note deleted successfully"}), 200
 
