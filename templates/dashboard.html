@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - NotesHive</title>
+</head>
+<body>
+    <h2>Welcome, {{ session.username }}! (Role: {{ session.role }})</h2>
+
+    <p>
+        <a href="/logout">Logout</a>
+        | <a href="/addnote">Add Note</a>
+        {% if session.role == 'teacher' %}
+            | <a href="/deletenote">Delete Note</a>
+        {% endif %}
+    </p>
+
+    <h3>Search Notes</h3>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="/dashboard">
+        <input type="text" name="query" placeholder="Type your search query" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if results %}
+        <h3>Results:</h3>
+        {% if results|length == 0 %}
+            <p>No relevant notes found for your search query.</p>
+        {% else %}
+            <ul>
+                {% for note in results %}
+                    <li>
+                        <strong>{{ note.title }}</strong>: {{ note.description }}
+                        {% if note.similarity %}
+                            <span style="color: gray;">(Relevance: {{ "%.0f"|format(note.similarity * 100) }}%)</span>
+                        {% endif %}
+                        {% if note.file_path %}
+                            <br><a href="{{ note.file_path }}" target="_blank">View File</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
