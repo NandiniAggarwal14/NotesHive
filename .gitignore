@@ -1,14 +1,70 @@
-# Ignore generated CSV & uploads and common artifacts
-notes_with_content.csv
-/uploads/
-/uploads/**
+# ============================
+# PROJECT: NOTESHIVE
+# Purpose: Prevent leaking data, secrets, large files, cache, and local settings
+# ============================
+
+# --- Python cache ---
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.env
+
+# --- Environment files (secrets) ---
 .env
+*.env
+.env.*
+
+# --- Virtual environments ---
+venv/
+env/
+.venv/
+
+# --- OS-specific files ---
+.DS_Store
+Thumbs.db
+
+# --- Editor/IDE specific ---
 .vscode/
 .idea/
-.DS_Store
+
+# --- Databases ---
 *.sqlite3
+*.db
+*.sqlite
+*.sql
+
+# --- Uploaded / user-generated content ---
+uploads/
+uploads/**
+/uploads
+
+# --- Data files that should NEVER be pushed ---
+*.csv
+*.xlsx
+*.xls
+*.tsv
+*.json
+*.parquet
+*.pickle
+*.pkl
+*.npy
+*.npz
+
+# (Your problematic file)
+notes_with_content.csv
+note_embeddings.npy
+
+# --- Model-related files ---
+*.model
+*.bin
+*.h5
+*.pytorch
+*.weights
+
+# --- Logs ---
+*.log
+
+# --- Zip, tar, large archives ---
+*.zip
+*.tar
+*.gz
