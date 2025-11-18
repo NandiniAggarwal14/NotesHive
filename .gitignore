@@ -1,0 +1,14 @@
+# Ignore generated CSV & uploads and common artifacts
+notes_with_content.csv
+/uploads/
+/uploads/**
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+.env
+.vscode/
+.idea/
+.DS_Store
+*.sqlite3
