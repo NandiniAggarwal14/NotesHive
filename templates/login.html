@@ -1,30 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - NotesHive</title>
-</head>
-<body>
-    <h2>Login to NotesHive</h2>
+{% extends "base.html" %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+{% block title %}Login - NotesHive{% endblock %}
 
-    <form method="POST" action="/login">
-        <label>Email:</label><br>
-        <input type="text" name="username" required><br><br>
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>📝 NotesHive</h1>
+            <p>Welcome back! Please login to your account</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-control" 
+                    placeholder="Enter your email"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="role" class="form-label">Login As</label>
+                <select id="role" name="role" class="form-control" required>
+                    <option value="">Select Role</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                Login
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Create one</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+{% block footer %}{% endblock %}
 
-        <label>Role:</label><br>
-        <select name="role">
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-        </select><br><br>
-
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>
+{% block extra_js %}
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+        
+        if (!email || !password || !role) {
+            e.preventDefault();
+            showToast('Please fill in all fields', 'error');
+            return false;
+        }
+        
+        if (email.length < 3) {
+            e.preventDefault();
+            showToast('Email must be at least 3 characters', 'warning');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

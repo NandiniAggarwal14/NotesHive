@@ -1,0 +1,8 @@
+1. Student profile
+2. Assignment submission, reminder through gmail
+3. organising quick tests, again reminder through mail
+4. Plagiarism detection in assignments submitted by Student
+5. Organised by subjects, where teacher can view analytics of all Student
+   enrolled in a sub, segmented by diff section
+6. Timestamp of assignements and tests
+7. Administrative rights/access

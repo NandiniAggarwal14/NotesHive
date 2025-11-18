@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - NotesHive{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1.5rem;">
+    <div class="dashboard-header">
+        <h1>🎓 Teacher Dashboard</h1>
+        <p style="color: var(--gray-dark);">
+            Viewing all notes from all users ({{ notes|length }} total)
+        </p>
+        
+        <div class="dashboard-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                👤 My Notes
+            </a>
+            <a href="{{ url_for('add_note') }}" class="btn btn-primary">
+                ➕ Add New Note
+            </a>
+        </div>
+    </div>
+    
+    {% if notes %}
+    <div class="grid grid-2">
+        {% for note in notes %}
+        <div class="note-card" style="display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <h3 class="note-title" style="flex: 1; margin-right: 0.5rem;">{{ note.title }}</h3>
+                <span class="badge badge-secondary" style="flex-shrink: 0;">{{ note.username }}</span>
+            </div>
+            
+            <p class="note-description" style="flex: 1; overflow: hidden; text-overflow: ellipsis;">
+                {{ note.description[:150] }}{% if note.description|length > 150 %}...{% endif %}
+            </p>
+            
+            <div class="note-meta" style="margin-top: auto;">
+                <span>📝 Note #{{ note.note_id }}</span>
+                <span>👤 {{ note.username }}</span>
+                {% if note.file_path %}
+                    {% if note.file_path.startswith('gdrive:') or 'drive.google.com' in note.file_path %}
+                    <span>🔗 Google Drive</span>
+                    {% else %}
+                    <span>📎 File attached</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <div class="note-actions" style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.4rem;">
+                <a href="{{ url_for('view_note', note_id=note.note_id) }}" class="btn btn-sm btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    👁️ View
+                </a>
+                <a href="{{ url_for('edit_note', note_id=note.note_id) }}" class="btn btn-sm btn-primary" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    ✏️ Edit
+                </a>
+                {% if note.file_path %}
+                <a href="{{ url_for('download_file', note_id=note.note_id) }}" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;" {% if note.file_path.startswith('gdrive:') or 'drive.google.com' in note.file_path %}target="_blank"{% endif %}>
+                    ⬇️ Download
+                </a>
+                {% endif %}
+                <a href="{{ url_for('delete_note', note_id=note.note_id) }}" class="btn btn-sm btn-danger btn-delete" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    🗑️ Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h2>No notes in the system</h2>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

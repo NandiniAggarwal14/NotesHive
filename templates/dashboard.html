@@ -1,48 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - NotesHive</title>
-</head>
-<body>
-    <h2>Welcome, {{ session.username }}! (Role: {{ session.role }})</h2>
+{% extends "base.html" %}
 
-    <p>
-        <a href="/logout">Logout</a>
-        | <a href="/addnote">Add Note</a>
-        {% if session.role == 'teacher' %}
-            | <a href="/deletenote">Delete Note</a>
-        {% endif %}
-    </p>
+{% block title %}Dashboard - NotesHive{% endblock %}
 
-    <h3>Search Notes</h3>
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
-    <form method="POST" action="/dashboard">
-        <input type="text" name="query" placeholder="Type your search query" required>
-        <button type="submit">Search</button>
-    </form>
-
-    {% if results %}
-        <h3>Results:</h3>
-        {% if results|length == 0 %}
-            <p>No relevant notes found for your search query.</p>
+{% block content %}
+<div class="container" style="padding: 2rem 1.5rem;">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>Welcome back, {{ session.get('username', 'User') }}! 👋</h1>
+        <p style="color: var(--gray-dark); font-size: 1.1rem;">
+            {% if session.get('role') == 'student' %}
+                Viewing all notes ({{ notes|length }} total)
+            {% else %}
+                You have <strong>{{ notes|length }}</strong> note{{ 's' if notes|length != 1 else '' }} in your collection
+            {% endif %}
+        </p>
+        
+        <div class="dashboard-actions">
+            <!-- Single Combined Search Box -->
+            <form method="POST" action="{{ url_for('search') }}" style="display: flex; gap: 0.5rem; flex: 1;">
+                <div class="search-box" style="flex: 1;">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        name="query" 
+                        id="search-input" 
+                        class="form-control" 
+                        placeholder="Search notes by title or description..."
+                        value="{{ search_query or '' }}"
+                    >
+                </div>
+                <button type="submit" class="btn btn-secondary">
+                    🔎 Search
+                </button>
+            </form>
+            
+            <!-- Action Buttons -->
+            <a href="{{ url_for('add_note') }}" class="btn btn-primary">
+                ➕ Add New Note
+            </a>
+        </div>
+    </div>
+    
+    <!-- Notes Grid -->
+    {% if notes %}
+    <div class="grid grid-2">
+        {% for note in notes %}
+        <div class="note-card" style="display: flex; flex-direction: column;">
+            <h3 class="note-title">{{ note.title }}</h3>
+            <p class="note-description" style="flex: 1; overflow: hidden; text-overflow: ellipsis;">
+                {{ note.description[:150] }}{% if note.description|length > 150 %}...{% endif %}
+            </p>
+            
+            <div class="note-meta" style="margin-top: auto;">
+                <span>📝 Note #{{ note.note_id }}</span>
+                {% if session.get('role') == 'student' and note.author_email %}
+                <span>👤 {{ note.author_email }}</span>
+                {% endif %}
+                {% if note.file_path %}
+                    {% if note.file_path.startswith('gdrive:') or 'drive.google.com' in note.file_path %}
+                    <span>🔗 Google Drive</span>
+                    {% else %}
+                    <span>📎 File attached</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <div class="note-actions" style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.4rem;">
+                <a href="{{ url_for('view_note', note_id=note.note_id) }}" class="btn btn-sm btn-secondary" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    👁️ View
+                </a>
+                
+                {% if session.get('role') == 'teacher' %}
+                <a href="{{ url_for('edit_note', note_id=note.note_id) }}" class="btn btn-sm btn-primary" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    ✏️ Edit
+                </a>
+                {% endif %}
+                
+                {% if note.file_path %}
+                <a href="{{ url_for('download_file', note_id=note.note_id) }}" class="btn btn-sm btn-outline" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;" {% if note.file_path.startswith('gdrive:') or 'drive.google.com' in note.file_path %}target="_blank"{% endif %}>
+                    ⬇️ Download
+                </a>
+                {% endif %}
+                
+                {% if session.get('role') == 'teacher' %}
+                <a href="{{ url_for('delete_note', note_id=note.note_id) }}" class="btn btn-sm btn-danger btn-delete" style="font-size: 0.75rem; padding: 0.4rem 0.5rem;">
+                    🗑️ Delete
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h2>No notes found!</h2>
+        {% if search_query %}
+        <p>No results for "{{ search_query }}". Try a different search term.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="margin-top: 1rem;">
+            Clear Search
+        </a>
         {% else %}
-            <ul>
-                {% for note in results %}
-                    <li>
-                        <strong>{{ note.title }}</strong>: {{ note.description }}
-                        {% if note.similarity %}
-                            <span style="color: gray;">(Relevance: {{ "%.0f"|format(note.similarity * 100) }}%)</span>
-                        {% endif %}
-                        {% if note.file_path %}
-                            <br><a href="{{ note.file_path }}" target="_blank">View File</a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
+        <p>Start organizing your thoughts by creating your first note.</p>
+        <a href="{{ url_for('add_note') }}" class="btn btn-primary btn-lg" style="margin-top: 1.5rem;">
+            ➕ Create Your First Note
+        </a>
         {% endif %}
+    </div>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

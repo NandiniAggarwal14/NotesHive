@@ -1,49 +1,58 @@
-# 🧠 NotesHive
-**AI-Powered Centralized Notes and Resource Management System**
+# 📝 NotesHive
+
+**NotesHive** is a Flask-based web application for creating, managing, organizing, and searching personal notes with role-based access control. It features both keyword and AI-powered semantic search capabilities, Google Drive integration, and a beautiful, responsive UI.
 
 ---
 
-## 🚀 Overview
-**NotesHive** is an AI-integrated system designed to store, manage, and intelligently retrieve academic notes and resources.  
-It leverages semantic search and embeddings-based similarity to recommend the most relevant notes to users, while maintaining scalability and modularity for future features like role-based access and plagiarism validation.
+## 🌟 Features
+
+### Core Functionality
+- **User Authentication**: Secure login system with role-based access (Student/Teacher)
+- **CRUD Operations**: Create, Read, Update, and Delete notes
+- **File Management**: Upload files or attach Google Drive links
+- **Smart Search**: Combined keyword and semantic search using AI embeddings
+- **Role-Based Access Control**:
+  - **Students**: View all notes, download files, search content
+  - **Teachers**: Full CRUD access, can delete any note, manage all content
+
+### Advanced Features
+- **Semantic Search**: AI-powered search using sentence transformers (finds related content by meaning)
+- **Google Drive Integration**: Attach, preview, and download files from Google Drive
+- **Responsive UI**: Modern, mobile-friendly design with toast notifications
+- **Real-time Feedback**: Flash messages and interactive UI elements
+- **Session Management**: Secure user sessions with automatic logout
 
 ---
 
-## 🧩 Current Modules
+## 🛠️ Technology Stack
 
-### 1. Database Layer
-- **Files:**
-  - `dblink.py` – Connects Python to the database using SQLAlchemy.
-  - `noteshive_schema.sql` – Contains the database schema for tables and relationships.
-  - `noteshive_values.sql` – Inserts initial data/values into the database.
+### Backend
+- **Framework**: Flask (Python)
+- **Database**: MySQL
+- **ORM**: SQLAlchemy, mysql-connector-python
+- **AI/ML**:
+  - sentence-transformers (all-MiniLM-L6-v2)
+  - scikit-learn (cosine similarity)
+  - pandas, numpy
 
-### 2. Embeddings and Semantic Search
-- **Files:**
-  - `embeddings.py` – Generates embeddings for notes’ title and description using `SentenceTransformer`.
-  - `semantic_search.py` – Performs semantic similarity search using vector-based matching.
-  - `notes_with_content.csv` – Stores preprocessed notes with title and description.
-  - `note_embeddings.pkl` – Stores the generated embeddings for faster retrieval.
+### Frontend
+- **HTML5** with Jinja2 templating
+- **CSS3** (Custom styles with Inter font)
+- **Vanilla JavaScript** (No frameworks)
+- **Google Fonts**: Inter font family
 
-### 3. Planned Modules
-- **Role-Based Access System (Admin, Student, Contributor)** – For managing uploads and permissions.
-- **Frontend Integration** – React or Flask-based interface for uploading and searching notes.
-- **Plagiarism / Similarity Check** – To ensure content authenticity and originality.
-
----
-
-## ⚙️ Tech Stack
-- **Backend:** Python, SQLAlchemy
-- **AI / ML:** SentenceTransformers (`all-MiniLM-L6-v2`)
-- **Database:** MySQL / PostgreSQL
-- **Data Handling:** Pandas, NumPy
-- **Future Frontend:** ReactJS / Flask
+### Security
+- **Session-based authentication**
+- **Role-based access control**
+- **Password protection** (Plain text for development, can be hashed)
 
 ---
 
-## 🗂️ Project Structure
+## 📁 Project Structure
 ```
 NotesHive/
 │
+├── app.py
 ├── dblink.py
 ├── embeddings.py
 ├── semantic_search.py

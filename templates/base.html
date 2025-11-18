@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NotesHive - Your Personal Note Manager{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Navigation (only show if user is logged in) -->
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="container">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                📝 NotesHive
+            </a>
+            <ul class="navbar-nav">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        {% if session.get('role') == 'student' %}All Notes{% else %}Dashboard{% endif %}
+                    </a>
+                </li>
+                
+                {% if session.get('role') == 'teacher' %}
+                <li>
+                    <a href="{{ url_for('teacher_dashboard') }}" class="nav-link {% if request.endpoint == 'teacher_dashboard' %}active{% endif %}">
+                        Teacher Panel
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('add_note') }}" class="nav-link {% if request.endpoint == 'add_note' %}active{% endif %}">
+                        Add Note
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="role-badge {{ session.get('role', 'student') }}">
+                        {{ session.get('role', 'student') }}
+                    </span>
+                    <span style="color: var(--gray-dark); font-size: 0.9rem;">
+                        {{ session.get('username', 'User') }}
+                    </span>
+                </li>
+                
+                <li>
+                    <a href="{{ url_for('logout') }}" class="nav-link">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Flash Messages (Hidden - Will be shown as toasts) -->
+    <div id="flash-messages" style="display: none;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div data-category="{{ category }}" data-message="{{ message }}"></div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer (optional) -->
+    {% block footer %}
+    {% if session.get('user_id') %}
+    <footer style="text-align: center; padding: 2rem; color: var(--gray); margin-top: 4rem;">
+        <p>&copy; NotesHive. Organize your thoughts beautifully.</p>
+    </footer>
+    {% endif %}
+    {% endblock %}
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    
+    <script>
+        // Show flash messages as toasts after scripts.js loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashContainer = document.getElementById('flash-messages');
+            if (flashContainer) {
+                const messages = flashContainer.querySelectorAll('[data-message]');
+                messages.forEach(function(msg) {
+                    const category = msg.getAttribute('data-category');
+                    const message = msg.getAttribute('data-message');
+                    if (typeof showToast === 'function') {
+                        showToast(message, category);
+                    }
+                });
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

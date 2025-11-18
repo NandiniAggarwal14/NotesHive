@@ -5,37 +5,171 @@
     <title>Add Note - NotesHive</title>
 </head>
 <body>
-    <h2>Add a New Note</h2>
-    <p><a href="/dashboard">Back to Dashboard</a> | <a href="/logout">Logout</a></p>
+    {% extends "base.html" %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
-    {% if message %}
-        <p style="color:green;">{{ message }}</p>
-    {% endif %}
+    {% block title %}{% if note %}Edit Note{% else %}Add Note{% endif %} - NotesHive{% endblock %}
 
-    <form method="POST" action="/addnote">
-        <!-- Title -->
-        <label>Title:</label><br>
-        <input type="text" name="title" required><br><br>
+    {% block content %}
+    <div class="container" style="padding: 2rem 1.5rem; max-width: 800px;">
+        <div class="card">
+            <div class="card-header">
+                <h2>{% if note %}✏️ Edit Note{% else %}➕ Create New Note{% endif %}</h2>
+                <p style="color: var(--gray); margin: 0;">
+                    {% if note %}
+                        Update your note details below
+                    {% else %}
+                        Fill in the details to create a new note
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="card-body">
+                <form 
+                    method="POST" 
+                    action="{% if note %}{{ url_for('edit_note', note_id=note.note_id) }}{% else %}{{ url_for('add_note') }}{% endif %}" 
+                    enctype="multipart/form-data"
+                    id="noteForm"
+                >
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="title" class="form-label">Note Title *</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            class="form-control" 
+                            placeholder="e.g., Meeting Notes, Recipe Ideas, Project Plan..."
+                            value="{{ note.title if note else '' }}"
+                            required
+                            autofocus
+                        >
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            class="form-control auto-resize" 
+                            placeholder="Write your note content here..."
+                            rows="8"
+                            required
+                        >{{ note.description if note else '' }}</textarea>
+                        <small style="color: var(--gray); font-size: 0.875rem;">
+                            Markdown supported. Be as detailed as you like!
+                        </small>
+                    </div>
+                    
+                    <!-- Keywords -->
+                    <div class="form-group">
+                        <label for="keywords" class="form-label">Keywords (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="keywords" 
+                            name="keywords" 
+                            class="form-control" 
+                            placeholder="meeting, work, ideas (comma-separated)"
+                            value="{{ note.keywords if note else '' }}"
+                        >
+                        <small style="color: var(--gray); font-size: 0.875rem;">
+                            Add keywords to make your notes easier to find
+                        </small>
+                    </div>
+                    
+                    <!-- Google Drive Link -->
+                    <div class="form-group">
+                        <label for="gdrive_link" class="form-label">
+                            Google Drive Link (Optional)
+                            {% if note and note.gdrive_link %}
+                                <span class="badge badge-primary">Currently linked</span>
+                            {% endif %}
+                        </label>
+                        <input 
+                            type="url" 
+                            id="gdrive_link" 
+                            name="gdrive_link" 
+                            class="form-control" 
+                            placeholder="https://drive.google.com/file/d/..."
+                            value="{{ note.gdrive_link if note and note.gdrive_link else '' }}"
+                        >
+                        <small style="color: var(--gray); font-size: 0.875rem;">
+                            Paste a Google Drive sharing link (make sure it's set to "Anyone with the link can view")
+                        </small>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 1rem 0; color: var(--gray); font-weight: 600;">
+                        - OR -
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div class="form-group">
+                        <label for="file" class="form-label">
+                            Upload File (Optional)
+                            {% if note and note.file_path and not note.gdrive_link %}
+                                <span class="badge badge-secondary">Current: {{ note.file_path.split('/')[-1] }}</span>
+                            {% endif %}
+                        </label>
+                        <input 
+                            type="file" 
+                            id="file" 
+                            name="file" 
+                            class="form-control"
+                            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                        >
+                        <small style="color: var(--gray); font-size: 0.875rem;">
+                            Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG (Max 10MB)
+                        </small>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">
+                                {% if note %}💾 Update Note{% else %}➕ Create Note{% endif %}
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg" style="flex: 1;">
+                                ← Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tips Card -->
+        <div class="card" style="margin-top: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h4 style="color: white;">💡 Pro Tips</h4>
+            <ul style="margin: 0; padding-left: 1.5rem; line-height: 1.8;">
+                <li>Use descriptive titles to find notes quickly</li>
+                <li>Add Google Drive links to share large files or documents</li>
+                <li>Upload local files for quick access</li>
+                <li>Add relevant keywords for better search results</li>
+            </ul>
+        </div>
+    </div>
+    {% endblock %}
 
-        <!-- Description (changed from 'content') -->
-        <label>Description:</label><br>
-        <textarea name="description" rows="5" cols="40" required></textarea><br><br>
-
-        <!-- File URL (required) -->
-        <label>File URL:</label><br>
-        <input type="text" name="file_path" placeholder="https://drive.google.com/..." required><br><br>
-
-        <!-- Subject: can use ID or Name -->
-        <label>Subject ID (if known):</label><br>
-        <input type="number" name="subject_id" placeholder="210"><br><br>
-
-        <label>Or Subject Name (if ID not known):</label><br>
-        <input type="text" name="subject_name" placeholder="DBMS"><br><br>
-
-        <button type="submit">Add Note</button>
-    </form>
+    {% block extra_js %}
+    <script>
+        // Form validation
+        document.getElementById('noteForm').addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            
+            if (!title || !description) {
+                e.preventDefault();
+                showToast('Please fill in all required fields', 'error');
+                return false;
+            }
+            
+            if (title.length < 3) {
+                e.preventDefault();
+                showToast('Title must be at least 3 characters long', 'warning');
+                return false;
+            }
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>

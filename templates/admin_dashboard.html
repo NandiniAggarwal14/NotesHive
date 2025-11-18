@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - NotesHive{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1.5rem;">
+    <div class="dashboard-header">
+        <h1>🔑 Admin Dashboard</h1>
+        <p style="color: var(--gray-dark);">
+            Viewing all notes from all users ({{ notes|length }} total)
+        </p>
+        
+        <div class="dashboard-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                👤 My Notes
+            </a>
+            <a href="{{ url_for('add_note') }}" class="btn btn-primary">
+                ➕ Add New Note
+            </a>
+        </div>
+    </div>
+    
+    {% if notes %}
+    <div class="grid grid-2">
+        {% for note in notes %}
+        <div class="note-card">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <h3 class="note-title">{{ note.title }}</h3>
+                <span class="badge badge-secondary">{{ note.username }}</span>
+            </div>
+            <p class="note-description">
+                {{ note.description[:150] }}{% if note.description|length > 150 %}...{% endif %}
+            </p>
+            
+            <div class="note-meta">
+                <span>📅 {{ note.created_at.strftime('%b %d, %Y') if note.created_at else 'N/A' }}</span>
+                <span>👤 {{ note.username }}</span>
+            </div>
+            
+            <div class="note-actions">
+                <a href="{{ url_for('view_note', note_id=note.note_id) }}" class="btn btn-sm btn-secondary">
+                    👁️ View
+                </a>
+                <a href="{{ url_for('delete_note', note_id=note.note_id) }}" class="btn btn-sm btn-danger">
+                    🗑️ Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h2>No notes in the system</h2>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
