@@ -14,13 +14,21 @@ import socket
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Load the sentence transformer model for semantic search
-try:
-    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-    print("✅ Semantic search model loaded successfully!")
-except Exception as e:
-    print(f"⚠️ Warning: Could not load semantic search model: {e}")
-    embedding_model = None
+# Lazy load the sentence transformer model only when needed
+embedding_model = None
+
+def get_embedding_model():
+    """Lazy load the embedding model only when needed"""
+    global embedding_model
+    if embedding_model is None:
+        try:
+            print("Loading semantic search model (this may take a moment)...")
+            embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            print("✅ Semantic search model loaded successfully!")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not load semantic search model: {e}")
+            embedding_model = False  # Set to False to avoid retrying
+    return embedding_model if embedding_model is not False else None
 
 # Helper function to convert Google Drive sharing link to direct download link
 def convert_gdrive_link(link):
@@ -375,7 +383,8 @@ def search():
     
     # Step 2: Semantic Search (meaning-based matches)
     semantic_results = []
-    if embedding_model:
+    model = get_embedding_model()  # Lazy load only when searching
+    if model:
         try:
             # Get all notes
             all_notes_query = """
@@ -388,13 +397,13 @@ def search():
             
             if all_notes:
                 # Create embeddings for search query
-                query_embedding = embedding_model.encode([query_text])[0]
+                query_embedding = model.encode([query_text])[0]
                 
                 # Create embeddings for all notes and calculate similarity
                 note_scores = []
                 for note in all_notes:
                     note_content = f"{note['title']} {note['description']}"
-                    note_embedding = embedding_model.encode([note_content])[0]
+                    note_embedding = model.encode([note_content])[0]
                     
                     # Calculate cosine similarity
                     similarity = cosine_similarity(
